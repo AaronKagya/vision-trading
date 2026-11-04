@@ -54,23 +54,3 @@ Encoders: `--encoder cnn` (default), `--encoder resnet18 --pretrained`, `--encod
 | 4 | Full world-model run, ablations | `results/` for the final configuration |
 | 5 | Volatility-split error analysis, robustness on a second coin or period, count all trials | extra tables |
 | 6 | Poster from report.html figures, demo with app.py | poster, demo, README |
-
----
-## Pre-registered attempt (written 2026-11-4, before running)
-
-Hypothesis: a pretrained ViT encoder makes the visual world model more
-accurate than the numeric LSTM on direction accuracy.
-
-Configuration: --encoder vit_tiny --pretrained, all other settings unchanged
-(seed 0, 10 epochs, 4 folds, horizon 4, same data), run once.
-
-Decision rule: supported only if the paired 95% interval of the world model's
-accuracy difference against the LSTM lies entirely above zero. Anything else is
-reported as not supported.
-
-Counting: 3 extra trials (three visual models switch to the ViT), 10
-configurations in total. Run with --extra-trials 3 so the deflated Sharpe uses
-them.
-
-Labelling: exploratory, because the first-period test results were already seen.
-Confirmatory only if repeated unchanged on a new period.
