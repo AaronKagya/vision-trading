@@ -1,0 +1,101 @@
+name: BTCUSDT Phase 2 market validation
+
+on:
+  push:
+    branches:
+      - 'validation/btcusdt-2024-phase2'
+    paths:
+      - '.github/workflows/btcusdt-research-validation.yml'
+      - 'scripts/prepare_btcusdt.py'
+      - 'tests/test_real_data_preflight.py'
+      - 'src/**'
+      - 'requirements.txt'
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: 'quick = January 2024, reduced compute; full = 2024, research configuration (CPU may be slow)'
+        type: choice
+        options: [quick, full]
+        default: quick
+        required: true
+
+permissions:
+  contents: read
+
+env:
+  OMP_NUM_THREADS: '2'
+  MKL_NUM_THREADS: '2'
+  OPENBLAS_NUM_THREADS: '2'
+  NUMEXPR_NUM_THREADS: '2'
+  PYTHONUNBUFFERED: '1'
+
+jobs:
+  validate:
+    name: Run Phase 2 BTCUSDT validation
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: pip
+      - name: Install CPU PyTorch
+        run: python -m pip install torch --index-url https://download.pytorch.org/whl/cpu
+      - name: Install research dependencies
+        run: python -m pip install -r requirements.txt
+      - name: Run full unit test suite
+        run: python -m pytest -q tests
+      - name: Choose declared experiment mode
+        id: config
+        env:
+          MODE: ${{ github.event.inputs.mode }}
+        run: |
+          if [ "$MODE" = 'full' ]; then
+            echo 'mode=full' >> "$GITHUB_OUTPUT"
+            echo 'month_end=2024-12' >> "$GITHUB_OUTPUT"
+          else
+            echo 'mode=quick' >> "$GITHUB_OUTPUT"
+            echo 'month_end=2024-01' >> "$GITHUB_OUTPUT"
+          fi
+      - name: Download and strictly verify Binance spot candles
+        run: python -m scripts.prepare_btcusdt --start 2024-01 --end '${{ steps.config.outputs.month_end }}'
+      - name: Quick BTCUSDT smoke comparison (8 models, not research benchmark)
+        if: steps.config.outputs.mode == 'quick'
+        run: |
+          python -m src.run_experiments \
+            --data data/BTCUSDT_15m.csv --models phase2 \
+            --window 16 --img 32 --horizon 4 --K 2 \
+            --folds 1 --epochs 1 --bs 32 --bootstrap 40 \
+            --seed 0 --out results_btc_quick
+          python -m src.report --results results_btc_quick
+          python -m src.phase2_eval --results results_btc_quick \
+            --data data/BTCUSDT_15m.csv --bootstrap 40
+      - name: Full predeclared BTCUSDT research configuration (CPU-intensive)
+        if: steps.config.outputs.mode == 'full'
+        run: |
+          python -m src.run_experiments \
+            --data data/BTCUSDT_15m.csv --models phase2 \
+            --window 32 --img 64 --horizon 4 --K 6 \
+            --folds 4 --epochs 10 --bs 128 --bootstrap 1000 \
+            --seed 0 --out results_btc_full
+          python -m src.report --results results_btc_full
+          python -m src.phase2_eval --results results_btc_full \
+            --data data/BTCUSDT_15m.csv --bootstrap 1000
+      - name: Save CSV manifest, model results, and diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: btcu-phase2-${{ steps.config.outputs.mode || 'quick' }}-${{ github.run_number }}
+          if-no-files-found: warn
+          retention-days: 30
+          path: |
+            data/*.manifest.json
+            results_btc_quick/metrics.json
+            results_btc_quick/preds.npz
+            results_btc_quick/phase2_diagnostics.json
+            results_btc_quick/report.html
+            results_btc_full/metrics.json
+            results_btc_full/preds.npz
+            results_btc_full/phase2_diagnostics.json
+            results_btc_full/report.html

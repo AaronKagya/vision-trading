@@ -118,3 +118,12 @@ streamlit run app.py
 - Deep-learning outcomes on a tiny synthetic smoke test do not measure skill. **Do not use this code to place trades.**
 
 See `docs/AUDIT_AND_LIMITATIONS.md` for itemized fixes, `docs/REPLICATION_PLAN.md` for the next research steps and `docs/PROVENANCE.md` for source lineage.
+
+## Immediate real-market BTCUSDT validation (Phase 2 continuation)
+
+See [`docs/BTCUSDT_VALIDATION.md`](docs/BTCUSDT_VALIDATION.md) for the
+strict 2024-01 data download, UTC coverage/hash checks, and GitHub Actions
+workflow. The pushed validation branch runs a reduced-cost real-market
+**engineering smoke test** automatically. It is not a replacement for the
+predeclared full-year, four-fold, ten-epoch scientific evaluation. Later
+Volatility 75 analysis remains deliberately out of scope.
