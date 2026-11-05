@@ -127,3 +127,15 @@ workflow. The pushed validation branch runs a reduced-cost real-market
 **engineering smoke test** automatically. It is not a replacement for the
 predeclared full-year, four-fold, ten-epoch scientific evaluation. Later
 Volatility 75 analysis remains deliberately out of scope.
+
+## Phase 2: full-year five-seed BTCUSDT benchmark
+
+The predeclared five-seed, four-fold 2024 benchmark is implemented as a separate
+GitHub Actions workflow, [`btcusdt-2024-five-seeds.yml`](.github/workflows/btcusdt-2024-five-seeds.yml).
+It runs the eight models with seeds 0–4 on separate CPU runners, validates a
+complete 2024 UTC BTCUSDT 15m dataset independently in each job, and aggregates
+only when all five seeds have valid results. The per-seed artifacts and aggregate
+report are retained for 30 days; see [the runbook](docs/FULL_YEAR_BENCHMARK.md).
+The longer benchmark can time out on GitHub's CPU machines; no completed study
+or improved performance is claimed until all five artifacts are verified.
+Volatility 75 testing remains deferred.
