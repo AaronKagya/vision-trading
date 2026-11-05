@@ -1,0 +1,16 @@
+Verification record — Vision Trading corrected research package
+
+Command: OMP_NUM_THREADS=2 MKL_NUM_THREADS=2 python -m pytest -q
+Observed result: 17 passed (including seven-model synthetic end-to-end test)
+Source suite: tests/test_no_lookahead.py, test_market_data.py,
+  test_metrics_and_folds.py, test_report.py, test_code_smoke.py
+
+Additional manual code-path verification:
+  * python -m src.run_experiments --data synthetic_null --n-synth 680
+    --window 16 --img 32 --K 2 --folds 1 --epochs 1 --bootstrap 20
+  * python -m src.report --results results_smoke
+  * python -m src.analysis --results results_smoke --bootstrap 20
+  * python run_seeds.py ... --seeds 0 1 on synthetic_null (completed)
+
+Not verified: original BTCUSDT 15m historical metrics, real-data five-seed
+results, trained model effectiveness, or broker/exchange execution.
