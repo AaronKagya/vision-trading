@@ -28,3 +28,26 @@ def test_split_does_not_train_on_2025_or_overlap_labels():
 def test_bad_embargo():
     d=make_df()
     with pytest.raises(ValueError):split_locked(d,np.arange(511,len(d)),h=4,embargo=1)
+
+
+def test_holdout_run_uses_valid_panel_interface(monkeypatch):
+    """Catch mismatched panels() keyword names before cloud training begins."""
+    import scripts.run_2025_holdout as h
+    d = make_df()
+    d['open'] = 100.0
+    d['high'] = 100.0
+    d['low'] = 100.0
+    d['close'] = 100.0
+    monkeypatch.setattr(h, 'load_candles', lambda path: d)
+
+    class ExpectedStop(Exception):
+        pass
+
+    def verify_panel_call(frame, window=32):
+        assert frame is d
+        assert window == 32
+        raise ExpectedStop()
+
+    monkeypatch.setattr(h, 'panels', verify_panel_call)
+    with pytest.raises(ExpectedStop):
+        h.run('unused.csv', epochs=1, batch_size=4)

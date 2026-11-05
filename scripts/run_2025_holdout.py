@@ -58,7 +58,7 @@ def run(source,out='results_holdout_2025q1',seed=0,epochs=10,batch_size=128):
     if epochs<1 or batch_size<2:raise ValueError('Invalid training parameters')
     df=load_candles(source)
     ensure_locked_range(df)
-    t_idx,pan=panels(df,W=32)
+    t_idx,pan=panels(df,window=32)
     num=numeric_features(pan)
     h=4
     close=df.close.to_numpy()
