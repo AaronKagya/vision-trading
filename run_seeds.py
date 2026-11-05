@@ -81,7 +81,7 @@ def main():
         sharpe=np.array([r['models'][name]['sharpe_net'] for r in runs])
         summary={'accuracy_mean_percent':float(acc.mean()),'accuracy_sd_percent':float(acc.std(ddof=1)) if len(acc)>1 else 0.,
             'auc_mean':float(auc.mean()),'net_sharpe_mean':float(sharpe.mean()),'accuracy_per_seed_percent':acc.tolist()}
-        if name in ['cnn_static','wm_nolatent','wm'] and 'lstm_ohlc' in models:
+        if name in ['cnn_static','wm_nolatent','wm','fusion'] and 'lstm_ohlc' in models:
             summary['seeds_beating_lstm']=sum(r['models'][name]['accuracy']>r['models']['lstm_ohlc']['accuracy'] for r in runs)
         out['models'][name]=summary
         print(f'{name:14s} accuracy {acc.mean():.2f}% ± {acc.std(ddof=1) if len(acc)>1 else 0:.2f} pp')

@@ -20,7 +20,8 @@ from src.features import panels,render,numeric_features
 from src import models as M
 from src import metrics as X
 
-MODELS=['majority','persistence','logreg_lags','lstm_ohlc','cnn_static','wm_nolatent','wm']
+BASE_MODELS=['majority','persistence','logreg_lags','lstm_ohlc','cnn_static','wm_nolatent','wm']
+MODELS=BASE_MODELS+['fusion']
 
 def build_folds(samples,folds=4,horizon=4,K=6):
     """Expanding folds with train -> embargo -> val -> embargo -> test.
@@ -71,7 +72,7 @@ def calculate_metrics(P,y_test,forward_return,config,spread=None,bootstrap=1000)
            'n_trades':int(len(rets[m])),'n_trade_intervals':int(len(rets[m]))}
         if spread and m in spread:res['models'][m]['latent_spread']=float(np.mean(spread[m]))
     if 'lstm_ohlc' in names:
-        for m in ['cnn_static','wm_nolatent','wm','persistence']:
+        for m in ['cnn_static','wm_nolatent','wm','fusion','persistence']:
             if m not in names:continue
             difference=lambda idx,m=m:float(((P[m][idx]>=.5)==y_test[idx]).mean()-((P['lstm_ohlc'][idx]>=.5)==y_test[idx]).mean())
             ci=X.block_bootstrap(difference,n,B=bootstrap,seed=1)
@@ -93,7 +94,8 @@ def run(a):
     import torch
     start=time.time();out=Path(a.out)
     out.mkdir(parents=True,exist_ok=True)
-    requested=MODELS if a.models=='all' else [x.strip() for x in a.models.split(',')]
+    requested=(BASE_MODELS if a.models=='all' else MODELS if a.models=='phase2'
+               else [x.strip() for x in a.models.split(',')])
     if not requested or len(set(requested))!=len(requested) or any(m not in MODELS for m in requested):
         raise ValueError(f'Invalid --models; valid choices: {MODELS}')
     if a.horizon<1 or a.K<1 or a.bs<2 or a.bootstrap<2:
@@ -139,6 +141,10 @@ def run(a):
         if 'logreg_lags' in P:
             reg=LogisticRegression(max_iter=500,random_state=a.seed)
             reg.fit(lag[tr],label[tr]);P['logreg_lags'].append(reg.predict_proba(lag[te])[:,1])
+        if 'fusion' in P:
+            cp=out/f'fusion_fold{fid}.pt' if a.save_checkpoints else None
+            P['fusion'].append(M.fit_predict_fusion(imgs,num,label,tr,va,te,
+                a.epochs,a.lr,a.img_bs or a.bs,a.seed,checkpoint=cp))
         if 'lstm_ohlc' in P:
             cp=out/f'lstm_fold{fid}.pt' if a.save_checkpoints else None
             P['lstm_ohlc'].append(M.fit_predict_lstm(num,label,tr,va,te,a.epochs,a.lr,a.bs,a.seed,checkpoint=cp))
@@ -157,6 +163,7 @@ def run(a):
     te=np.concatenate(te_all)
     probs={m:np.concatenate(values) for m,values in P.items()}
     config=vars(a).copy();config['models_evaluated']=requested
+    config['phase2_candidate']='fusion' if 'fusion' in requested else None
     res=calculate_metrics(probs,label[te],fwd[te],config,spreads,a.bootstrap)
     res['data_provenance']={'sha256':sha,'rows':int(len(df)),
         'start_utc':df.time.iloc[0].isoformat(),'end_utc':df.time.iloc[-1].isoformat(),
@@ -195,7 +202,7 @@ def main():
     p.add_argument('--pretrained',action='store_true')
     p.add_argument('--cost',type=float,default=.0005)
     p.add_argument('--extra-trials',type=int,default=0)
-    p.add_argument('--models',default='all',help='all or comma-separated model names (smoke tests)')
+    p.add_argument('--models',default='all',help='all = original 7; phase2 = 7 plus fusion; or comma-separated names')
     p.add_argument('--bootstrap',type=int,default=1000)
     p.add_argument('--seed',type=int,default=0)
     p.add_argument('--save-checkpoints',action='store_true')
