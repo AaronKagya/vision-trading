@@ -119,23 +119,8 @@ streamlit run app.py
 
 See `docs/AUDIT_AND_LIMITATIONS.md` for itemized fixes, `docs/REPLICATION_PLAN.md` for the next research steps and `docs/PROVENANCE.md` for source lineage.
 
-## Immediate real-market BTCUSDT validation (Phase 2 continuation)
+## Phase 3 — locked 2025-Q1 holdout
 
-See [`docs/BTCUSDT_VALIDATION.md`](docs/BTCUSDT_VALIDATION.md) for the
-strict 2024-01 data download, UTC coverage/hash checks, and GitHub Actions
-workflow. The pushed validation branch runs a reduced-cost real-market
-**engineering smoke test** automatically. It is not a replacement for the
-predeclared full-year, four-fold, ten-epoch scientific evaluation. Later
-Volatility 75 analysis remains deliberately out of scope.
+The next experiment fixes the baseline to the **numerical LSTM** and tests it on strictly later January–March 2025 market data. We explicitly separate 2024 train/validation observations from the 2025 test observations; no 2025 labels enter model training, early stopping or numerical standardization. An exploratory **0.55 / 0.45 / otherwise abstain** rule is evaluated without tuning it on the 2025 holdout.
 
-## Phase 2: full-year five-seed BTCUSDT benchmark
-
-The predeclared five-seed, four-fold 2024 benchmark is implemented as a separate
-GitHub Actions workflow, [`btcusdt-2024-five-seeds.yml`](.github/workflows/btcusdt-2024-five-seeds.yml).
-It runs the eight models with seeds 0–4 on separate CPU runners, validates a
-complete 2024 UTC BTCUSDT 15m dataset independently in each job, and aggregates
-only when all five seeds have valid results. The per-seed artifacts and aggregate
-report are retained for 30 days; see [the runbook](docs/FULL_YEAR_BENCHMARK.md).
-The longer benchmark can time out on GitHub's CPU machines; no completed study
-or improved performance is claimed until all five artifacts are verified.
-Volatility 75 testing remains deferred.
+See [the locked holdout protocol](docs/PHASE3_2025_HOLDOUT.md) and [the new workflow](.github/workflows/btcusdt-2025-holdout.yml). Predictions and historical proxies are for research, not live trading. Volatility 75 remains deferred.
