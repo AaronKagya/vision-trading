@@ -11,7 +11,8 @@ import re
 
 NAMES={'majority':'Majority baseline','persistence':'Trend persistence',
     'logreg_lags':'Logistic regression','lstm_ohlc':'Numerical LSTM',
-    'cnn_static':'Static chart CNN','wm_nolatent':'CNN + GRU','wm':'Visual world model'}
+    'cnn_static':'Static chart CNN','wm_nolatent':'CNN + GRU','wm':'Visual world model',
+    'fusion':'Numeric + chart fusion (Phase 2)'}
 
 def build(results='results'):
     root=Path(results)

@@ -200,9 +200,105 @@ def fit_predict_lstm(num,y,tr,va,te,epochs,lr,bs,seed,checkpoint=None):
             if bad>=3:break
     if state is not None:model.load_state_dict(state)
     if checkpoint:
-        torch.save({'state_dict':model.state_dict(),'scaler_std':sd,'n_features':num.shape[-1]},checkpoint)
+        torch.save({'state_dict':model.state_dict(),'scaler_std':torch.as_tensor(sd).cpu(),'n_features':num.shape[-1]},checkpoint)
     model.eval()
     with torch.no_grad():
         p=torch.sigmoid(model(x[te])).cpu().numpy()
     del x
     return p
+
+
+# Phase 2 candidate: representation fusion (new experimental configuration).
+class FusionModel(nn.Module):
+    """Same-candle numerical LSTM and single-chart CNN; no external information.
+
+    Both branches see OHLC ending at the forecast decision time t. The image
+    is deterministically rendered from those OHLC values, so this architecture
+    tests a *representation bias*, not new market information.
+    """
+    def __init__(self, n_features=12):
+        super().__init__()
+        self.numeric = nn.LSTM(n_features, 48, batch_first=True)
+        self.visual = CNNEncoder(out=64)
+        self.head = nn.Sequential(
+            nn.LayerNorm(48 + 64),
+            nn.Linear(48 + 64, 48),
+            nn.ReLU(),
+            nn.Dropout(0.1),
+            nn.Linear(48, 1),
+        )
+
+    def forward(self, numeric, chart):
+        if numeric.ndim != 3 or chart.ndim != 4 or chart.shape[1] != 3:
+            raise ValueError('Expected numeric (batch,window,features), chart (batch,3,H,W)')
+        if numeric.shape[0] != chart.shape[0]:
+            raise ValueError('Numeric and chart batch sizes differ')
+        state, _ = self.numeric(numeric)
+        view = self.visual(chart)
+        return self.head(torch.cat([state[:, -1, :], view], dim=1)).squeeze(-1)
+
+
+def fit_predict_fusion(imgs, num, y, tr, va, te, epochs, lr, bs, seed, checkpoint=None):
+    """Train fusion model with train-only numeric scaling, validation-only early stop.
+
+    The forward pass uses only `imgs[t]` and `num[t]` at each decision t.
+    `imgs[t+1]` is never accessed by this model, even while training.
+    """
+    if not len(tr) or not len(va) or not len(te):
+        raise ValueError('Empty train, validation, or test partition')
+    _set_seed(seed)
+    rng = np.random.default_rng(seed)
+    # The training split alone determines the transformation.
+    flat = num[tr].reshape(-1, num.shape[-1])
+    mean = flat.mean(axis=0)
+    std = flat.std(axis=0) + 1e-9
+    numeric = torch.as_tensor((num - mean) / std, device=DEV, dtype=torch.float32)
+    labels = torch.as_tensor(y, device=DEV, dtype=torch.float32)
+    model = FusionModel(n_features=num.shape[-1]).to(DEV)
+    optimizer = torch.optim.Adam(model.parameters(), lr=lr, weight_decay=1e-4)
+    best_loss = float('inf')
+    best_state = None
+    stale = 0
+    for _ in range(epochs):
+        model.train()
+        shuffled = rng.permutation(tr)
+        for start in range(0, len(shuffled), bs):
+            idx = shuffled[start:start + bs]
+            if len(idx) < 2:
+                continue
+            logits = model(numeric[idx], _img(imgs, idx))
+            loss = F.binary_cross_entropy_with_logits(logits, labels[idx])
+            optimizer.zero_grad(set_to_none=True)
+            loss.backward()
+            optimizer.step()
+        model.eval()
+        total = 0.0
+        with torch.no_grad():
+            for start in range(0, len(va), bs):
+                idx = va[start:start + bs]
+                logits = model(numeric[idx], _img(imgs, idx))
+                total += F.binary_cross_entropy_with_logits(
+                    logits, labels[idx], reduction='sum').item()
+        value = total / len(va)
+        if value < best_loss - 1e-4:
+            best_loss, stale = value, 0
+            best_state = copy.deepcopy(model.state_dict())
+        else:
+            stale += 1
+            if stale >= 3:
+                break
+    if best_state is not None:
+        model.load_state_dict(best_state)
+    if checkpoint:
+        torch.save({'state_dict': model.cpu().state_dict(), 'scaler_mean': torch.as_tensor(mean).cpu(),
+                    'scaler_std': torch.as_tensor(std).cpu(), 'n_features': num.shape[-1],
+                    'architecture': 'causal_fusion_v1'}, checkpoint)
+        model = model.to(DEV)
+    model.eval()
+    result = []
+    with torch.no_grad():
+        for start in range(0, len(te), bs):
+            idx = te[start:start + bs]
+            logits = model(numeric[idx], _img(imgs, idx))
+            result.append(torch.sigmoid(logits).cpu().numpy())
+    return np.concatenate(result)
