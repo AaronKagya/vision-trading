@@ -119,11 +119,8 @@ streamlit run app.py
 
 See `docs/AUDIT_AND_LIMITATIONS.md` for itemized fixes, `docs/REPLICATION_PLAN.md` for the next research steps and `docs/PROVENANCE.md` for source lineage.
 
-## Immediate real-market BTCUSDT validation (Phase 2 continuation)
+## Phase 3 — locked 2025-Q1 holdout
 
-See [`docs/BTCUSDT_VALIDATION.md`](docs/BTCUSDT_VALIDATION.md) for the
-strict 2024-01 data download, UTC coverage/hash checks, and GitHub Actions
-workflow. The pushed validation branch runs a reduced-cost real-market
-**engineering smoke test** automatically. It is not a replacement for the
-predeclared full-year, four-fold, ten-epoch scientific evaluation. Later
-Volatility 75 analysis remains deliberately out of scope.
+The next experiment fixes the baseline to the **numerical LSTM** and tests it on strictly later January–March 2025 market data. We explicitly separate 2024 train/validation observations from the 2025 test observations; no 2025 labels enter model training, early stopping or numerical standardization. An exploratory **0.55 / 0.45 / otherwise abstain** rule is evaluated without tuning it on the 2025 holdout.
+
+See [the locked holdout protocol](docs/PHASE3_2025_HOLDOUT.md) and [the new workflow](.github/workflows/btcusdt-2025-holdout.yml). Predictions and historical proxies are for research, not live trading. Volatility 75 remains deferred.
