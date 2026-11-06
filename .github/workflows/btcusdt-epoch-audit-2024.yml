@@ -1,0 +1,125 @@
+name: BTCUSDT Phase 4 training adequacy audit and untouched Q2 evaluation
+
+on:
+  push:
+    branches:
+      - 'validation/btcusdt-epoch-audit-2024'
+    paths:
+      - '.github/workflows/btcusdt-epoch-audit-2024.yml'
+      - 'src/epoch_audit.py'
+      - 'scripts/run_epoch_audit.py'
+      - 'scripts/summarize_epoch_audit.py'
+      - 'scripts/score_epoch_holdout.py'
+      - 'tests/test_epoch_audit.py'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  OMP_NUM_THREADS: '2'
+  MKL_NUM_THREADS: '2'
+  OPENBLAS_NUM_THREADS: '2'
+  NUMEXPR_NUM_THREADS: '2'
+  PYTHONUNBUFFERED: '1'
+
+jobs:
+  epoch-audit:
+    name: 2024 train-only audit (seed ${{ matrix.seed }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 150
+    strategy:
+      fail-fast: false
+      max-parallel: 5
+      matrix:
+        seed: [0, 1, 2, 3, 4]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: pip
+      - name: Install CPU PyTorch
+        run: python -m pip install torch --index-url https://download.pytorch.org/whl/cpu
+      - name: Install research dependencies
+        run: python -m pip install -r requirements.txt
+      - name: Run all tests
+        run: python -m pytest -q tests
+      - name: Download only 2024 historical data (no 2025 available here)
+        run: python -m scripts.prepare_btcusdt --start 2024-01 --end 2024-12
+      - name: Audit fixed LSTM training and validation epochs
+        run: python -m scripts.run_epoch_audit --seed ${{ matrix.seed }} --out epoch-seed-${{ matrix.seed }}
+      - name: Upload every historical epoch and validation-best checkpoint
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: epoch-seed-${{ matrix.seed }}
+          retention-days: 30
+          if-no-files-found: warn
+          path: epoch-seed-${{ matrix.seed }}/
+
+  select-epoch-budget:
+    name: Lock epoch budget using 2024 validation only
+    needs: epoch-audit
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install summarizer dependencies
+        run: python -m pip install numpy
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: epoch-seed-*
+          path: collected_epoch
+          merge-multiple: false
+      - name: Verify all five seeds and select using validation loss alone
+        run: python -m scripts.summarize_epoch_audit --root collected_epoch --out selected_epoch_budget
+      - uses: actions/upload-artifact@v4
+        with:
+          name: epoch-validation-only-selection
+          retention-days: 30
+          path: selected_epoch_budget/
+
+  locked-2025q2-evaluation:
+    name: One-time evaluation on unseen 2025-Q2 data
+    needs: select-epoch-budget
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: pip
+      - name: Install CPU PyTorch
+        run: python -m pip install torch --index-url https://download.pytorch.org/whl/cpu
+      - name: Install research dependencies
+        run: python -m pip install -r requirements.txt
+      - name: Retrieve validation-selected model checkpoints
+        uses: actions/download-artifact@v4
+        with:
+          pattern: epoch-seed-*
+          path: collected_epoch
+          merge-multiple: false
+      - name: Retrieve selection frozen on 2024 only
+        uses: actions/download-artifact@v4
+        with:
+          name: epoch-validation-only-selection
+          path: selected_epoch_budget
+      - name: Download complete 2024 through Q2-2025 price history (Q1 context only)
+        run: python -m scripts.prepare_btcusdt --start 2024-01 --end 2025-06
+      - name: Score frozen checkpoints on Q2 without fitting or threshold tuning
+        run: python -m scripts.score_epoch_holdout --data data/BTCUSDT_15m.csv --root collected_epoch --selection selected_epoch_budget/selected.json --out results_epoch_holdout_2025q2
+      - name: Upload Q2 results and verified provenance
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: epoch-audit-2025q2-locked-holdout
+          retention-days: 30
+          if-no-files-found: warn
+          path: |
+            data/*.manifest.json
+            results_epoch_holdout_2025q2/
