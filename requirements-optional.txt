@@ -1,3 +1,0 @@
-torchvision>=0.16
-timm>=0.9
-streamlit>=1.30
