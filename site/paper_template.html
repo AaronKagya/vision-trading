@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#07121e">
+<title>Vision Trading AI · Historical Paper Replay</title>
+<style>
+:root{color-scheme:dark;--bg:#07111d;--panel:#101f30;--panel2:#12283b;--edge:#294258;--text:#eff8ff;--muted:#9fb3c6;--sea:#6ae5d1;--danger:#ff8b96;--yellow:#ffd596;--blue:#87b6ec}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at 75% -20%,#234360 0,transparent 48%),var(--bg);color:var(--text);font:14px/1.55 system-ui,-apple-system,Segoe UI,sans-serif}a{color:var(--sea)}button,select{font:inherit}button:focus-visible,a:focus-visible,input:focus-visible{outline:2px solid var(--sea);outline-offset:3px}
+.wrap{width:min(1200px,100%);margin:auto;padding:20px 18px 70px}.top{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:16px;margin-bottom:34px}.brand{display:flex;gap:12px;align-items:center}.logo{width:48px;height:48px;border-radius:13px;display:grid;place-items:center;font-size:26px;font-weight:850;background:#144c49;border:1px solid #358779;color:#a1ffeb}.brand b{font-size:19px;letter-spacing:-.3px;display:block}.brand small{color:var(--muted)}.tags{display:flex;flex-wrap:wrap;gap:8px;align-items:center}.pill{border:1px solid #536575;background:#1c2a36;border-radius:999px;padding:6px 12px;font-size:11px;color:#e5ebf2;font-weight:700;letter-spacing:.2px}.pill.warning{border-color:#88653a;color:#ffdcaf;background:#392d20}h1{font-size:clamp(31px,4.5vw,49px);line-height:1.09;letter-spacing:-1.7px;margin:4px 0 14px}h2{font-size:18px;margin:0 0 9px}h3{font-size:14px;margin:0 0 6px}.eyebrow{color:var(--sea);font-size:12px;letter-spacing:1.3px;text-transform:uppercase;font-weight:800}.intro{max-width:780px;color:var(--muted);font-size:15px;margin-bottom:18px}.alert{border:1px solid #80603b;border-radius:13px;background:#2c251e;padding:13px 17px;color:#ffe3b8;margin:19px 0 24px}.alert strong{color:#fff3db}
+.stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-bottom:16px}.stat,.panel{background:linear-gradient(145deg,#14283d,#0e1b2c);border:1px solid var(--edge);border-radius:16px}.stat{padding:17px}.stat b{display:block;font-size:clamp(21px,2.5vw,29px);font-variant-numeric:tabular-nums;margin:5px 0}.stat small{display:block;color:var(--muted);font-size:11px}.negative{color:var(--danger)}.positive{color:var(--sea)}.warntext{color:var(--yellow)}.grid{display:grid;grid-template-columns:1.65fr 1fr;gap:15px}.panel{padding:20px;min-width:0}.full{grid-column:1/-1}.label{color:var(--muted);font-size:12px}.flex{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}.metric{padding:11px 0;display:flex;justify-content:space-between;align-items:center;gap:8px;border-bottom:1px solid #294156}.metric strong{font-variant-numeric:tabular-nums}.chart{height:235px;display:block;width:100%;margin:14px 0 2px;cursor:crosshair}.secondary{height:158px}.legend{display:flex;flex-wrap:wrap;gap:12px;align-items:center;color:var(--muted);font-size:11px}.dot{height:8px;width:8px;display:inline-block;border-radius:100%;margin-right:5px;background:var(--sea)}.dot.blue{background:var(--blue)}.dot.yellow{background:var(--yellow)}.controls{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:16px 0 12px}.button{border:1px solid #4c718a;color:var(--text);background:#1b3449;border-radius:10px;padding:10px 13px;cursor:pointer;font-weight:700}.button:hover{background:#24425c;border-color:var(--sea)}.button.primary{background:#24655f;border-color:#3da797;color:#eafff9}select{padding:10px;border-radius:9px;color:var(--text);background:#1c354a;border:1px solid #4c718a}input[type=range]{display:block;width:100%;accent-color:var(--sea);cursor:pointer}.now{font-variant-numeric:tabular-nums;color:var(--sea);font-weight:800}.split{display:grid;grid-template-columns:1fr 1fr;gap:13px}.smallstat{padding:14px;border:1px solid #294156;border-radius:11px;background:#0d1a29}.smallstat strong{display:block;font-size:21px;margin:3px 0}.smallstat small{color:var(--muted)}.notice{color:var(--muted);font-size:12px;margin:12px 0 0}.table-wrap{overflow:auto}table{border-collapse:collapse;width:100%;font-variant-numeric:tabular-nums;font-size:12px}td,th{padding:10px;border-bottom:1px solid #2b4053;text-align:left;white-space:nowrap}th{color:var(--muted);font-size:11px}.side{display:flex;flex-direction:column;gap:14px}.foot{margin-top:30px;color:var(--muted);font-size:11px;line-height:1.8}.hash{overflow-wrap:anywhere;font:11px/1.6 ui-monospace,Consolas,monospace;color:#b6c9d9}.links{display:flex;gap:14px;flex-wrap:wrap;margin-top:16px}.tip{color:var(--yellow)}
+@media(max-width:830px){.grid{grid-template-columns:1fr}.stats{grid-template-columns:repeat(2,minmax(0,1fr))}.panel{padding:15px}.wrap{padding:16px 12px 38px}.top{margin-bottom:24px}}
+@media(max-width:400px){.stat{padding:12px}.stat b{font-size:21px}.split{grid-template-columns:1fr}.controls .button{flex:1}h1{letter-spacing:-.6px}}
+</style>
+</head>
+<body><div class="wrap">
+<header class="top"><div class="brand"><div class="logo">V</div><div><b>VISION TRADING AI</b><small>Research sandbox · v0.3 prototype</small></div></div><div class="tags"><span class="pill warning">HISTORICAL REPLAY</span><span class="pill">NO LIVE ORDERS</span></div></header>
+<div class="eyebrow">Paper-trading laboratory</div><h1>See every decision.<br>Question every result.</h1>
+<p class="intro">Replay the recorded LSTM's January–March 2025 forecasts on disjoint one-hour intervals. Watch when it would go long, short or stay flat—and how illustrative transaction costs change its outcomes. This is a playback of completed research, not a live trading account.</p>
+<div class="alert"><strong>Research simulation only.</strong> Historical outcomes are already known. This playback uses a fixed 55%/45% signal rule and a 0.05% illustrative cost per unit position change. The model is not demonstrated profitable. No money, brokerage access, live signals or order execution are involved.</div>
+<div class="stats">
+  <div class="stat"><small>Replayed intervals</small><b id="intervals">—</b><small>Non-overlapping one-hour outcomes</small></div>
+  <div class="stat"><small>Signals taken</small><b id="active">—</b><small>Long and short combined</small></div>
+  <div class="stat"><small>Estimated cumulative cost</small><b id="cost">—</b><small>Illustrative cost drag, log units</small></div>
+  <div class="stat"><small>Net log-P&amp;L proxy</small><b id="net">—</b><small>Not realized investment returns</small></div>
+</div>
+<div class="grid">
+<section class="panel">
+ <div class="flex"><div><div class="eyebrow">Recorded historical prices</div><h2>BTC normalized price path</h2></div><span class="pill" id="timestamp">—</span></div>
+ <p class="notice">Indexed to 100 at the first replay point; this is not a dollar-price chart or live market feed.</p>
+ <canvas class="chart" id="priceChart" role="img" aria-label="Indexed BTCUSDT historical price replay"></canvas>
+ <div class="legend"><span><i class="dot blue"></i>Historical indexed market price</span><span><i class="dot yellow"></i>Decision cursor</span></div>
+ <div class="controls"><button type="button" class="button primary" id="play">▶ Play</button><button type="button" class="button" id="back">←</button><button type="button" class="button" id="forward">→</button><button type="button" class="button" id="reset">Restart</button><label class="label" for="speed">Speed</label><select id="speed"><option value="1">1×</option><option value="4" selected>4×</option><option value="12">12×</option><option value="40">40×</option></select></div>
+ <label class="label" for="seek">Historical playback progress</label><input type="range" min="0" value="0" id="seek" aria-label="Historical replay progress">
+ <div class="flex"><span class="label">Jan 2025</span><span class="now" id="progress">—</span><span class="label">Mar 2025</span></div>
+ <hr style="border:0;border-top:1px solid #2b4053;margin:18px 0">
+ <div class="flex"><div><div class="eyebrow">Simulated cumulative net P&amp;L</div><h2>Transaction costs matter</h2></div><span class="pill">LOG-RETURN PROXY</span></div>
+ <canvas class="chart secondary" id="pnlChart" role="img" aria-label="Cumulative net directional proxy after illustrative transaction costs"></canvas>
+ <div class="legend"><span><i class="dot"></i>Net log-P&amp;L proxy</span><span><i class="dot yellow"></i>Zero baseline</span></div>
+</section>
+<div class="side">
+<section class="panel">
+ <div class="eyebrow">Decision at cursor</div><h2 id="decision">—</h2><p class="label" id="signalText">—</p>
+ <div class="split"><div class="smallstat"><small>Model P(up) score</small><strong id="probability">—</strong><small>Uncalibrated model score</small></div><div class="smallstat"><small>Actual next-hour move</small><strong id="actualReturn">—</strong><small>Historical, already observed</small></div></div>
+ <div class="metric"><span class="label">Gross interval proxy</span><strong id="gross">—</strong></div><div class="metric"><span class="label">Cost for this transition</span><strong id="stepCost">—</strong></div><div class="metric"><span class="label">Net interval proxy</span><strong id="stepNet">—</strong></div>
+ <p class="notice" id="explain">—</p>
+</section>
+<section class="panel">
+ <div class="eyebrow">Independent training audit</div><h2>Longer training didn't solve it</h2><div class="split"><div class="smallstat"><small>2025 Q2 LSTM</small><strong id="q2lstm">—</strong><small>Five-seed average accuracy</small></div><div class="smallstat"><small>Simple majority</small><strong id="q2base">—</strong><small>Baseline accuracy</small></div></div>
+ <p class="notice">Our 2024 validation selected an upper limit of <strong id="epoch">—</strong> epochs. The selected model still did not outperform the baseline on April–June 2025. These results are displayed for accountability, not to retune the historical replay.</p>
+ <div class="links"><a href="https://github.com/AaronKagya/vision-trading/actions/runs/42226885906" rel="noopener noreferrer" target="_blank">Training-audit evidence</a></div>
+</section>
+</div>
+<section class="panel full"><div class="flex"><div><div class="eyebrow">Decision ledger</div><h2>Recent replayed intervals</h2><p class="notice">Position change costs include entry and reversals; the final interval also includes terminal flattening.</p></div><span class="pill">READ-ONLY</span></div><div class="table-wrap"><table><thead><tr><th>UTC decision</th><th>Position</th><th>P(up)</th><th>Next-hour move</th><th>Net proxy</th></tr></thead><tbody id="ledger"></tbody></table></div></section>
+<section class="panel full"><div class="eyebrow">Research provenance</div><h2>Why these numbers are trustworthy—and what they don't prove</h2><p class="notice">The archived 2025 Q1 forecast file was checked against the exact published policy, including terminal liquidation cost. The 2025 Q2 results were validated against the five-seed 2024-only epoch selection. This replay is not a fresh untouched backtest: 2025 Q1 and Q2 have already been examined. Scores omit actual bid/ask, slippage, execution constraints, margin, funding, latency, downtime and short borrow mechanics. Even accurate historical models can lose money.</p>
+ <div class="links"><a href="../">Original research dashboard</a><a href="https://github.com/AaronKagya/vision-trading/actions/runs/42043691500">2025 Q1 holdout evidence</a><a href="https://github.com/AaronKagya/vision-trading/tree/validation/btcusdt-epoch-audit-2024">Reproducible source</a></div>
+ <div style="margin-top:16px"><span class="label">2025 Q1 evidence ZIP SHA-256</span><div class="hash" id="evidenceHash">—</div></div>
+</section>
+</div>
+<footer class="foot">Vision Trading AI · Historical research replay v0.3 · Not an investment product, forecast of current prices, brokerage account or profitable trading bot. Data are frozen as of March 2025. All decision timestamps in UTC.</footer>
+</div>
+<script type="application/json" id="dataset">@@DATA_JSON@@</script>
+<script>
+(function(){'use strict';
+const d=JSON.parse(document.getElementById('dataset').textContent),rows=d.rows,n=rows.length,$=id=>document.getElementById(id);let cursor=0,timer=null;
+const fmt=(v,dec=4)=>Number(v).toFixed(dec),sign=(v,dec=4)=>v>=0?'+'+fmt(v,dec):fmt(v,dec),pct=v=>(100*v).toFixed(2)+'%';
+const price=[100];for(let i=0;i<n;i++)price.push(price[price.length-1]*Math.exp(rows[i][3]));
+const net=rows.map(x=>x[7]);const posTxt={1:'LONG',0:'FLAT','-1':'SHORT'};
+$('seek').max=String(n-1);$('evidenceHash').textContent=d.sources.q1_holdout_sha256;
+$('q2lstm').textContent=pct(d.q2.lstm_accuracy_mean);$('q2base').textContent=pct(d.q2.majority_accuracy);$('epoch').textContent=d.q2.selected_max_epochs;
+function plot(canvas,values,color,highlightZero=false){
+ const w=Math.max(270,Math.floor(canvas.getBoundingClientRect().width)),h=canvas.classList.contains('secondary')?158:235,scale=Math.min(window.devicePixelRatio||1,2);
+ canvas.width=Math.floor(w*scale);canvas.height=Math.floor(h*scale);
+ const ctx=canvas.getContext('2d');ctx.setTransform(scale,0,0,scale,0,0);ctx.clearRect(0,0,w,h);
+ const padL=48,padR=10,padT=12,padB=25,x0=padL,x1=w-padR,y0=padT,y1=h-padB;
+ const visible=values.slice(0,Math.min(values.length,cursor+1));let min=Math.min(...visible),max=Math.max(...visible);if(highlightZero){min=Math.min(min,0);max=Math.max(max,0)}if(max-min<1e-8){max+=1;min-=1}const padding=(max-min)*.07;max+=padding;min-=padding;
+ const toX=i=>x0+(i/(values.length-1))*(x1-x0),toY=v=>y1-((v-min)/(max-min))*(y1-y0);
+ ctx.font='11px system-ui';ctx.fillStyle='#a2b4c8';for(let j=0;j<=4;j++){const yy=y0+j*(y1-y0)/4;ctx.beginPath();ctx.moveTo(x0,yy);ctx.lineTo(x1,yy);ctx.strokeStyle='#2e4358';ctx.lineWidth=.7;ctx.stroke();ctx.fillText(fmt(max-(max-min)*j/4,highlightZero?2:1),3,yy+4)}
+ if(highlightZero){ctx.setLineDash([6,4]);ctx.strokeStyle='#d9b375';ctx.beginPath();ctx.moveTo(x0,toY(0));ctx.lineTo(x1,toY(0));ctx.stroke();ctx.setLineDash([])}
+ const end=Math.min(cursor,values.length-1);
+ ctx.strokeStyle=color;ctx.lineWidth=1.8;ctx.beginPath();for(let i=0;i<=end;i++){const x=toX(i),y=toY(values[i]);if(i===0)ctx.moveTo(x,y);else ctx.lineTo(x,y)}ctx.stroke();
+ const px=toX(end),py=toY(values[end]);ctx.beginPath();ctx.arc(px,py,4,0,Math.PI*2);ctx.fillStyle='#ffd596';ctx.fill();
+ ctx.fillStyle='#afc0cf';ctx.fillText('2025-01-01',x0,y1+16);ctx.textAlign='right';ctx.fillText('2025-03-31',x1,y1+16);ctx.textAlign='left';
+}
+function stop(){if(timer!==null){clearInterval(timer);timer=null}$('play').textContent='▶ Play'}
+function render(){const r=rows[cursor],current=rows.slice(0,cursor+1),active=current.filter(x=>x[2]!==0).length,
+ cost=current.reduce((s,x)=>s+x[5],0);$('timestamp').textContent=r[0]+' UTC';$('intervals').textContent=(cursor+1).toLocaleString()+' / '+n.toLocaleString();$('active').textContent=active.toLocaleString();$('cost').textContent=fmt(cost,4);$('net').textContent=sign(r[7],4);$('net').className=r[7]<0?'negative':'positive';
+ $('progress').textContent=((cursor+1)/n*100).toFixed(1)+'%';$('seek').value=String(cursor);
+ $('decision').textContent=posTxt[String(r[2])];$('decision').className=r[2]===0?'warntext':r[2]>0?'positive':'negative';
+ $('probability').textContent=pct(r[1]);$('actualReturn').textContent=sign((Math.exp(r[3])-1)*100,3)+'%';$('actualReturn').className=r[3]<0?'negative':'positive';$('gross').textContent=sign(r[4],5);$('stepCost').textContent='−'+fmt(r[5],5);$('stepNet').textContent=sign(r[6],5);$('stepNet').className=r[6]<0?'negative':'positive';
+ $('signalText').textContent=r[2]===0?'Model score inside the 45–55% abstention zone.':r[2]>0?'Long position suggested by fixed historical rule.':'Short position suggested by fixed historical rule.';
+ $('explain').textContent=r[2]===0?'This interval is counted as no position. It may still incur an exit cost.':'This is a hypothetical direction only, not an executable signal.';
+ const tbody=$('ledger');tbody.textContent='';for(let i=cursor;i>=Math.max(0,cursor-7);i--){const x=rows[i],tr=document.createElement('tr');for(const [value,cls] of [[x[0],null],[posTxt[String(x[2])],x[2]===0?'warntext':x[2]>0?'positive':'negative'],[pct(x[1]),null],[sign((Math.exp(x[3])-1)*100,3)+'%',x[3]<0?'negative':'positive'],[sign(x[6],5),x[6]<0?'negative':'positive']]){const td=document.createElement('td');td.textContent=value;if(cls)td.className=cls;tr.append(td)}tbody.append(tr)}
+ plot($('priceChart'),price,'#87b6ec');plot($('pnlChart'),net,'#6ae5d1',true);
+}
+function seek(v){cursor=Math.max(0,Math.min(n-1,v));render();if(cursor===n-1)stop()}
+$('play').onclick=()=>{if(timer!==null){stop();return}if(cursor===n-1)cursor=0;const s=Number($('speed').value);timer=setInterval(()=>seek(cursor+s),95);$('play').textContent='Ⅱ Pause'};
+$('back').onclick=()=>{stop();seek(cursor-1)};$('forward').onclick=()=>{stop();seek(cursor+1)};$('reset').onclick=()=>{stop();seek(0)};
+$('seek').oninput=e=>{stop();seek(Number(e.target.value))};$('speed').onchange=()=>{if(timer!==null){stop();$('play').click()}};
+window.addEventListener('resize',render);render();
+})();
+</script>
+</body></html>

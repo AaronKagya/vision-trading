@@ -1,3 +1,7 @@
+
+## Phase 5 · Historical paper replay v0.3
+
+The mobile-friendly read-only replay at `site/paper/index.html` uses the locked 2025-Q1 LSTM predictions and displays a disjoint one-hour position ledger with explicit turnover costs. See [the methodology](docs/PHASE5_PAPER_REPLAY.md) and [offline reproduction script](scripts/build_paper_replay.py). The 2025-Q2 external audit still finds no reliable prediction or trading advantage. This is not live paper trading or order execution.
 ## Phase 4 training adequacy audit
 
 See [Phase 4 audit protocol](docs/PHASE4_EPOCH_AUDIT.md): evaluate LSTM training across 5, 10, 20, and 40 maximum epochs, record all validation-loss curves, compare five fixed seeds on 2024 only, then test the validation-selected checkpoint once on April–June 2025. This is research only, not a live trading signal. The public v0.2 dashboard remains unchanged.
