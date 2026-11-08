@@ -1,9 +1,10 @@
-# Vision Trading AI — Research Dashboard v0.2
+# Vision Trading AI — public research prototypes
 
-This branch contains the static published site for the [Vision Trading AI research project](https://github.com/AaronKagya/vision-trading/tree/feature/vision-trading-dashboard-v02).
+This GitHub Pages branch serves the public [Vision Trading AI website](https://aaronkagya.github.io/vision-trading/).
 
-`index.html` is a self-contained dashboard backed by completed 2024 research and 2025-Q1 BTCUSDT experiments. All visualized forecasts are historical, not live signals. There is **no live order execution**, brokerage connection, or demonstrated trading profitability.
+- **/index.html** — historical BTCUSDT model-evaluation dashboard v0.2, updated with Phase 4 epoch-audit evidence.
+- **/paper/index.html** — historical paper replay v0.3: 2,159 non-overlapping January–March 2025 one-hour forecast intervals, fixed +/-5 percentage-point abstention threshold and illustrative 0.0005 turnover cost. Read-only; no current prices, live forecasts, broker accounts, executed trades or demonstrated profitability.
 
-To enable the public site, go to **Repository Settings → Pages → Build and deployment → Deploy from a branch**, select **gh-pages** and **/(root)**, then Save. GitHub Pages will generate the website at `https://aaronkagya.github.io/vision-trading/`. Check that it returns the dashboard before sharing this address.
+Reproducible source, methods and tests: [feature/vision-trading-paper-replay-v03](https://github.com/AaronKagya/vision-trading/tree/feature/vision-trading-paper-replay-v03).
 
-Source code and reproducibility notes: [dashboard source](https://github.com/AaronKagya/vision-trading/tree/feature/vision-trading-dashboard-v02).
+Independent April–June 2025 LSTM accuracy was 50.81% (five-seed mean) vs 50.94% for the simple baseline. These numbers do not justify live autonomous trading.
