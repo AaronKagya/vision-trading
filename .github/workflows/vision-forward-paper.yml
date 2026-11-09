@@ -1,0 +1,68 @@
+name: Vision Trading BTCUSDT forward-only paper monitor
+
+on:
+  schedule:
+    - cron: '7,22,37,52 * * * *'
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/vision-forward-paper.yml'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: vision-trading-forward-paper-state
+  cancel-in-progress: false
+
+jobs:
+  observe:
+    name: Verify public market data and persist forward-only paper ledger
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - name: Checkout pinned research monitor
+        uses: actions/checkout@v4
+        with:
+          ref: 61ede850bb1f458b5eb34ae6d50468af0404c092
+          path: research
+          persist-credentials: false
+      - name: Checkout static published state
+        uses: actions/checkout@v4
+        with:
+          ref: gh-pages
+          path: published
+          persist-credentials: true
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Verify all forward-ledger invariants
+        run: |
+          python -m pip install --quiet pytest
+          cd research
+          python -m pytest -q tests/test_forward_paper.py
+      - name: Fetch public BTCUSDT observations and advance ledger
+        run: |
+          cd research
+          python -m scripts.run_forward_paper --state ../published/live/state.json
+      - name: Preserve observed state as workflow artifact
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: forward-paper-state-${{ github.run_id }}
+          path: published/live/state.json
+          retention-days: 30
+          if-no-files-found: error
+      - name: Commit public ledger without modifying research source
+        run: |
+          git -C published config user.name 'github-actions[bot]'
+          git -C published config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git -C published add live/state.json
+          if git -C published diff --cached --quiet; then
+            echo 'No new observation to save.'
+          else
+            git -C published commit -m 'data: observed forward-only BTCUSDT paper-monitor state'
+            git -C published pull --rebase origin gh-pages
+            git -C published push origin HEAD:gh-pages
+          fi
