@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#0a101d">
+<meta name="description" content="Vision Trading AI forward-only BTCUSDT paper monitoring experiment, using public market observations and a clearly labeled non-AI baseline.">
+<title>Vision Trading AI · Forward Paper Monitor</title>
+<style>
+:root{color-scheme:dark;--bg:#090f1b;--panel:#111c2e;--line:#233247;--txt:#edf4ff;--muted:#a4b3c9;--up:#69ddb4;--accent:#96b5ff;--warning:#ffcc8a}
+*{box-sizing:border-box}html{font-family:Inter,system-ui,-apple-system,'Segoe UI',sans-serif}body{margin:0;background:radial-gradient(circle at 85% 0,#192e4d 0%,var(--bg) 38%);color:var(--txt);min-height:100vh}
+a{color:#b5cdff;text-decoration:none}a:hover{text-decoration:underline}button{font:inherit}
+.shell{max-width:1150px;padding:30px 20px 80px;margin:0 auto}.top{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;border-bottom:1px solid var(--line);padding-bottom:18px}
+.logo{font-size:15px;letter-spacing:.12em;font-weight:900;color:#e5f1ff}.top nav{display:flex;gap:18px;font-size:13px;color:var(--muted);flex-wrap:wrap}
+.hero{padding:38px 0 23px}.kicker{font-size:12px;letter-spacing:.15em;color:var(--accent);text-transform:uppercase;font-weight:800}h1{font-size:clamp(30px,5vw,51px);letter-spacing:-.04em;margin:12px 0;line-height:1.05}h2{font-size:18px;margin:0 0 15px}.subtitle{color:var(--muted);line-height:1.55;max-width:790px;font-size:15px;margin:0}
+.flag{display:inline-flex;gap:8px;align-items:center;background:#192842;border:1px solid #2a4868;border-radius:999px;padding:7px 12px;color:#b5daff;font-size:12px;font-weight:700;margin-top:18px}
+.grid{display:grid;gap:14px}.stats{grid-template-columns:repeat(4,minmax(0,1fr));margin-top:25px}.card{background:linear-gradient(145deg,#142238,#101a2c);border:1px solid #24334a;border-radius:17px;padding:22px;min-width:0}.metric-label{color:var(--muted);font-size:12px;font-weight:650;margin-bottom:12px}.metric{font-size:clamp(21px,3vw,33px);font-weight:850;letter-spacing:-.025em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.metric-note{font-size:11px;color:var(--muted);margin-top:8px}
+.main{grid-template-columns:minmax(0,1.7fr) minmax(290px,1fr);margin-top:14px}.status{color:var(--muted);font-size:13px;line-height:1.65}.action{font-weight:800;font-size:27px}.action.up{color:var(--up)}.action.idle{color:var(--muted)}.muted{color:var(--muted)}.small{font-size:12px;line-height:1.6}
+.chart{display:block;width:100%;height:auto;min-height:215px}.chart-actions{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px;margin-bottom:8px}.segments{display:flex;gap:7px}button{border:1px solid #3a506a;color:#bdd4ff;background:#17263b;border-radius:8px;padding:7px 11px;cursor:pointer;font-size:12px}button[aria-pressed="true"]{background:#324c75;color:white;border-color:#6f92c5}button:hover{background:#294262}
+.pill{border-radius:8px;padding:8px 12px;background:#112b2c;color:var(--up);font-size:12px;display:inline-block}.pill.warn{background:#3b2d1f;color:var(--warning)}
+.table-wrap{overflow-x:auto;margin-top:8px}table{border-collapse:collapse;width:100%;font-size:12px;white-space:nowrap}th,td{text-align:left;padding:13px 11px;border-bottom:1px solid var(--line)}th{color:var(--muted);font-weight:650}td{font-variant-numeric:tabular-nums}.row-status{font-weight:700}.row-status.open{color:var(--up)}.row-status.flat{color:var(--muted)}
+.footer{margin-top:25px;border-top:1px solid var(--line);padding-top:22px;color:var(--muted);font-size:12px;line-height:1.65}.footer strong{color:var(--txt)}.loading{color:var(--muted);padding:30px;text-align:center}
+@media(max-width:850px){.stats{grid-template-columns:repeat(2,minmax(0,1fr))}.main{grid-template-columns:1fr}}
+@media(max-width:480px){.shell{padding:18px 13px 45px}.hero{padding-top:30px}.card{padding:17px}.metric{font-size:24px}.top nav{gap:12px}}
+</style>
+</head>
+<body>
+<div class="shell">
+  <header class="top"><div class="logo">◈ VISION TRADING AI</div><nav><a href="../">Research</a><a href="../paper/">2025 replay</a><a href="https://github.com/AaronKagya/vision-trading">Source</a></nav></header>
+  <section class="hero">
+    <div class="kicker">Prototype v0.4 · prospective evidence</div>
+    <h1>Forward paper monitor<span style="color:var(--accent)">.</span></h1>
+    <p class="subtitle">Observing BTCUSDT spot and recording hypothetical hourly decisions <strong>after</strong> deployment. No retrospective trades, no brokerage connections, no live orders, and no claim of a profitable AI strategy.</p>
+    <div id="health" class="flag" role="status" aria-live="polite">● Checking published observations…</div>
+  </section>
+  <section class="grid stats" aria-label="Paper monitor statistics">
+    <div class="card"><div class="metric-label">BTCUSDT observed ticker</div><div class="metric" id="price">—</div><div class="metric-note" id="priceNote">No verified market observation yet</div></div>
+    <div class="card"><div class="metric-label">Recorded decisions</div><div class="metric" id="decisions">—</div><div class="metric-note">Future-only hourly observations</div></div>
+    <div class="card"><div class="metric-label">Closed paper longs</div><div class="metric" id="closed">—</div><div class="metric-note">No real exchange transactions</div></div>
+    <div class="card"><div class="metric-label">Net paper log-P&amp;L proxy</div><div class="metric" id="net">—</div><div class="metric-note">With assumed 5 bps per side</div></div>
+  </section>
+  <section class="grid main">
+    <div class="card"><div class="chart-actions"><h2>Recent closed 15-minute candles</h2><div class="segments" role="group" aria-label="Chart period"><button id="h6" aria-pressed="false">6h</button><button id="h12" aria-pressed="false">12h</button><button id="h24" aria-pressed="true">24h</button></div></div>
+      <svg id="chart" class="chart" viewBox="0 0 680 270" role="img" aria-label="BTCUSDT historical price line of recently completed candles"><text x="25" y="135" fill="#9baecb">Awaiting observations…</text></svg>
+      <p class="small muted">This is a periodically refreshed static snapshot, not a tick-by-tick exchange feed. Prices refer to recorded Binance spot observations.</p>
+    </div>
+    <div class="card"><h2>Paper decision engine</h2>
+      <div id="action" class="action idle">Awaiting activation</div>
+      <p class="status" id="actionDetails">The first observation activates the ledger. No past trade will be invented.</p>
+      <div class="pill warn">Baseline: momentum, NOT AI predictions</div>
+      <p class="small muted" style="margin-top:20px">Rule: once per hour, compare the latest completed 15-minute candle to the one 60 minutes earlier. If positive, record a hypothetical spot long using the observed public ticker; otherwise stay flat. A long is marked closed at the first observation at least one hour later.</p>
+      <p class="small muted" id="asof">Observed at: —</p>
+      <button id="refresh">Refresh from published snapshot</button>
+    </div>
+  </section>
+  <section class="card" style="margin-top:14px"><h2>Persistent paper decision ledger</h2>
+    <p class="small muted">Records begin only after the first real observation. Missing scheduler windows are skipped. Entry and exit prices are theoretical ticker snapshots, not real fills.</p>
+    <div class="table-wrap"><table><thead><tr><th>Signal candle (UTC)</th><th>Action</th><th>Status</th><th>Entry price</th><th>Exit price</th><th>Net log proxy</th></tr></thead><tbody id="records"><tr><td colspan="6" class="loading">No verified decisions yet</td></tr></tbody></table></div>
+  </section>
+  <footer class="footer"><strong>Research safety:</strong> This baseline has not demonstrated market skill. Its long-only, no-leverage simulation charges an assumed 0.0005 log-unit on entry and exit, but excludes true spread variation, slippage, queue priority, taxes, liquidity and operational failures. A missing update never means the system is trading. <a href="https://github.com/AaronKagya/vision-trading/tree/feature/vision-trading-forward-paper-v04">Methods &amp; reproducibility</a>. All dates in the ledger are UTC. GitHub-hosted schedules may be delayed.</footer>
+</div>
+<script>
+'use strict';
+let dataset=null, hours=24;
+const el=id=>document.getElementById(id);
+const fmtNum=x=>typeof x==='number'&&Number.isFinite(x)?new Intl.NumberFormat('en-US',{maximumFractionDigits:2}).format(x):'—';
+const usd=x=>typeof x==='number'&&Number.isFinite(x)?'$'+new Intl.NumberFormat('en-US',{minimumFractionDigits:2,maximumFractionDigits:2}).format(x):'—';
+const moment=ms=>typeof ms==='number'?new Date(ms).toISOString().replace('T',' ').slice(0,16)+' UTC':'—';
+function chart(points){
+ const svg=el('chart');svg.replaceChildren();
+ const width=680,height=270,left=58,right=18,top=17,bottom=37;
+ const data=Array.isArray(points)?points.slice(-hours*4).filter(z=>Array.isArray(z)&&Number.isFinite(z[1])):[];
+ const NS='http://www.w3.org/2000/svg';
+ function node(name,attrs,content){const n=document.createElementNS(NS,name);Object.entries(attrs).forEach(([k,v])=>n.setAttribute(k,String(v)));if(content!==undefined)n.textContent=content;svg.append(n);return n;}
+ if(data.length<2){node('text',{x:28,y:135,fill:'#a4b3c9'},'Observations will appear here after the first successful poll.');return;}
+ let min=Math.min(...data.map(z=>z[1])),max=Math.max(...data.map(z=>z[1]));if(max===min){max+=1;min-=1;}const pad=(max-min)*0.12;max+=pad;min-=pad;
+ const x=i=>left+(width-left-right)*i/(data.length-1),y=v=>top+(max-v)*(height-top-bottom)/(max-min);
+ for(let i=0;i<4;i++){let py=top+i*(height-top-bottom)/3;node('line',{x1:left,y1:py,x2:width-right,y2:py,stroke:'#283a53','stroke-width':1});node('text',{x:4,y:py+4,fill:'#91a7c1','font-size':12},Math.round(max-(max-min)*i/3).toLocaleString());}
+ const pts=data.map((z,i)=>`${x(i).toFixed(2)},${y(z[1]).toFixed(2)}`).join(' ');
+ node('polyline',{points:pts,fill:'none',stroke:'#69ddb4','stroke-width':2.6,'stroke-linejoin':'round','stroke-linecap':'round'});
+ node('circle',{cx:x(data.length-1),cy:y(data.at(-1)[1]),r:4.3,fill:'#86e9c5'});
+ node('text',{x:left,y:height-8,fill:'#91a7c1','font-size':11},moment(data[0][0]).slice(5,16));
+ node('text',{x:width-right,y:height-8,fill:'#91a7c1','font-size':11,'text-anchor':'end'},moment(data.at(-1)[0]).slice(5,16));
+}
+function render(d){dataset=d;const stats=d.metrics||{};const market=d.market||{};
+ el('price').textContent=usd(market.last_trade_price_at_observation);
+ el('priceNote').textContent='Latest recorded ticker price, not an executable quote';
+ el('decisions').textContent=fmtNum(stats.decisions);
+ el('closed').textContent=fmtNum(stats.closed_longs);
+ const val=stats.net_log_pnl_proxy;el('net').textContent=Number.isFinite(val)?(val>=0?'+':'')+(val*100).toFixed(3)+'%':'—';
+ el('net').style.color=Number.isFinite(val)&&val<0?'#ffb4a8':'#edf4ff';
+ const age=Date.now()-d.updated_at_ms;let status=age<30*60000?'Recent market observation':age<90*60000?'Update delayed':'Market snapshot stale — do not rely on current price';
+ el('health').textContent='● '+status;el('health').style.color=age<30*60000?'#9deed4':'#ffcc8a';
+ el('asof').textContent='Last observed: '+moment(d.updated_at_ms)+' · Local time: '+new Date(d.updated_at_ms).toLocaleString();
+ el('action').textContent=d.open_trade?'Hypothetical long open':'No open position';
+ el('action').className='action '+(d.open_trade?'up':'idle');
+ el('actionDetails').textContent=d.open_trade?`Entry snapshot ${usd(d.open_trade.entry_price)} at ${moment(d.open_trade.entry_observed_ms)}. No real order was placed.`:
+  stats.decisions===0?'Monitoring activated; waiting for a new eligible hourly decision. No historical backfill.':'Monitoring is flat. No live orders or leverage.';
+ chart(market.last_96_closes);
+ const tbody=el('records');tbody.replaceChildren();const rows=Array.isArray(d.ledger)?d.ledger.slice(-30).reverse():[];
+ if(!rows.length){const tr=document.createElement('tr'),td=document.createElement('td');td.colSpan=6;td.className='loading';td.textContent='No forward-only paper decisions yet';tr.append(td);tbody.append(tr);return;}
+ for(const item of rows){const tr=document.createElement('tr');const values=[moment(item.signal_candle_close_ms),item.action==='long'?'LONG (paper)':'NO TRADE',item.status,usd(item.entry_price),usd(item.exit_price),Number.isFinite(item.net_log_pnl_proxy)?(item.net_log_pnl_proxy*100).toFixed(3)+'%':'—'];
+  values.forEach((s,i)=>{const td=document.createElement('td');td.textContent=s;if(i===2)td.className='row-status '+(item.status==='open'?'open':'flat');tr.append(td);});tbody.append(tr);}
+}
+async function fetchState(){el('refresh').disabled=true;try{
+ const res=await fetch('state.json?nocache='+Date.now(),{cache:'no-store'});
+ if(res.status===404){el('health').textContent='● Awaiting first scheduled observation';return;}
+ if(!res.ok)throw new Error('HTTP '+res.status);
+ const d=await res.json();if(d.schema_version!==1||d.symbol!=='BTCUSDT'||d.strategy_type!=='non_ai_baseline'||!Number.isFinite(d.updated_at_ms))throw new Error('Unrecognized data schema');
+ render(d);
+}catch(e){el('health').textContent='● Unable to verify the published market snapshot';console.warn('Paper monitor:',e.message);}finally{el('refresh').disabled=false;}}
+for(const n of [6,12,24])el('h'+n).addEventListener('click',()=>{hours=n;for(const k of [6,12,24])el('h'+k).setAttribute('aria-pressed',String(k===n));if(dataset)chart(dataset.market?.last_96_closes);});
+el('refresh').addEventListener('click',fetchState);
+fetchState();setInterval(fetchState,90000);
+</script>
+</body>
+</html>
