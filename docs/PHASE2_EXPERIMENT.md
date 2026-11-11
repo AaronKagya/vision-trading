@@ -2,7 +2,7 @@
 
 **Status (2026-11-05): implemented and synthetically smoke-tested; real-data performance NOT evaluated.**
 
-## Objective
+## Objectiv
 
 Test whether a single-frame chart CNN combined with a numerical OHLC LSTM provides a better predictive representation than either the original numerical LSTM or the original visual world model. Both branches see **the same historical OHLC information**. The chart cannot introduce additional raw information.
 
