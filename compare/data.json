@@ -1,0 +1,152 @@
+{
+  "schema_version": 1,
+  "status": "baseline_only",
+  "generated_utc": "2026-11-12T12:34:05.464060+00:00",
+  "study_period": "2024-01-01 through 2024-12-31, UTC",
+  "timeframe": "15m",
+  "prediction_horizon_candles": 4,
+  "models": [
+    "majority",
+    "persistence",
+    "logreg_lags",
+    "lstm_ohlc",
+    "cnn_static",
+    "wm_nolatent",
+    "wm",
+    "fusion"
+  ],
+  "parameters": {
+    "models": "phase2",
+    "folds": 4,
+    "epochs": 10,
+    "window": 32,
+    "img": 64,
+    "K": 6,
+    "horizon": 4,
+    "bs": 128,
+    "bootstrap": 1000,
+    "cost": 0.0005
+  },
+  "markets": {
+    "BTCUSDT": {
+      "status": "measured",
+      "seeds": [
+        0
+      ],
+      "folds": 4,
+      "n_test_per_seed": 17308,
+      "rows": 35136,
+      "data_sha256": "2cc72f14a30e03baa1aeff87d4d6c63b4359361146fa51b633b96a21e106de67",
+      "models": {
+        "majority": {
+          "accuracy_mean": 0.5140397504044373,
+          "accuracy_sd": null,
+          "auc_mean": 0.5,
+          "auc_sd": null,
+          "brier_mean": 0.4859602495955627,
+          "brier_sd": null,
+          "sharpe_net_mean": 1.8349092388661326,
+          "sharpe_net_sd": null
+        },
+        "persistence": {
+          "accuracy_mean": 0.4766581927432401,
+          "accuracy_sd": null,
+          "auc_mean": 0.4762419866714092,
+          "auc_sd": null,
+          "brier_mean": 0.5233418072567598,
+          "brier_sd": null,
+          "sharpe_net_mean": -8.99236037824027,
+          "sharpe_net_sd": null
+        },
+        "logreg_lags": {
+          "accuracy_mean": 0.5140397504044373,
+          "accuracy_sd": null,
+          "auc_mean": 0.5026970641043703,
+          "auc_sd": null,
+          "brier_mean": 0.24987433410710946,
+          "brier_sd": null,
+          "sharpe_net_mean": 1.8349092388661326,
+          "sharpe_net_sd": null
+        },
+        "lstm_ohlc": {
+          "accuracy_mean": 0.5336838456205223,
+          "accuracy_sd": null,
+          "auc_mean": 0.5369106181929878,
+          "auc_sd": null,
+          "brier_mean": 0.2489572629792897,
+          "brier_sd": null,
+          "sharpe_net_mean": -6.215810073249708,
+          "sharpe_net_sd": null
+        },
+        "cnn_static": {
+          "accuracy_mean": 0.5203374162237115,
+          "accuracy_sd": null,
+          "auc_mean": 0.528868281548752,
+          "auc_sd": null,
+          "brier_mean": 0.25029172790035026,
+          "brier_sd": null,
+          "sharpe_net_mean": -3.3215104603257295,
+          "sharpe_net_sd": null
+        },
+        "wm_nolatent": {
+          "accuracy_mean": 0.5202218627224405,
+          "accuracy_sd": null,
+          "auc_mean": 0.5308269448688766,
+          "auc_sd": null,
+          "brier_mean": 0.24974660794405665,
+          "brier_sd": null,
+          "sharpe_net_mean": -2.9436592564308186,
+          "sharpe_net_sd": null
+        },
+        "wm": {
+          "accuracy_mean": 0.5205685232262538,
+          "accuracy_sd": null,
+          "auc_mean": 0.5343908897433791,
+          "auc_sd": null,
+          "brier_mean": 0.24892204306155777,
+          "brier_sd": null,
+          "sharpe_net_mean": -0.1093438651042596,
+          "sharpe_net_sd": null
+        },
+        "fusion": {
+          "accuracy_mean": 0.5121908943840998,
+          "accuracy_sd": null,
+          "auc_mean": 0.5224468747051337,
+          "auc_sd": null,
+          "brier_mean": 0.25027179214662704,
+          "brier_sd": null,
+          "sharpe_net_mean": -3.1914889063038703,
+          "sharpe_net_sd": null
+        }
+      }
+    },
+    "ETHUSDT": {
+      "status": "pending",
+      "note": "Real-data benchmark not completed; no measured performance yet."
+    },
+    "SOLUSDT": {
+      "status": "pending",
+      "note": "Real-data benchmark not completed; no measured performance yet."
+    },
+    "XAUUSD": {
+      "status": "planned",
+      "note": "No comparable validated dataset or experiment yet."
+    },
+    "EURUSD": {
+      "status": "planned",
+      "note": "No comparable validated dataset or experiment yet."
+    },
+    "VOLATILITY75": {
+      "status": "planned",
+      "note": "No comparable validated dataset or experiment yet."
+    }
+  },
+  "warnings": [
+    "Models use historical BTCUSDT, ETHUSDT and SOLUSDT Binance SPOT candles, not live trading.",
+    "Markets share wall-clock periods; cross-asset results are correlated, not independent replications.",
+    "Across-market percentage accuracy is not an executable profit comparison.",
+    "The same illustrative turnover cost of 0.0005 is not a validated, asset-specific execution model.",
+    "Different random seeds reuse identical market test windows; seed variability is not an independent test set.",
+    "No model has been authorized for live trading and no profitability is claimed."
+  ]
+}
