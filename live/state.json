@@ -1,6 +1,6 @@
 {
   "activated_at_ms": 1794218819777,
-  "last_signal_hour_ms": 1794279600000,
+  "last_signal_hour_ms": 1794445200000,
   "ledger": [
     {
       "action": "flat",
@@ -19,111 +19,29 @@
       "signal_observed_ms": 1794280091551,
       "signal_type": "momentum_baseline_not_ai",
       "status": "flat"
+    },
+    {
+      "action": "long",
+      "cost_log_pnl_proxy": null,
+      "entry_observed_ms": 1794445543196,
+      "entry_price": 73822.0,
+      "exit_observed_ms": null,
+      "exit_price": null,
+      "gross_log_pnl_proxy": null,
+      "id": "BTCUSDT-2026-11-12T01:00:00Z",
+      "momentum_1h": 0.0010280322187918856,
+      "net_log_pnl_proxy": null,
+      "one_hour_prior_close": 74015.19,
+      "signal_candle_close": 74091.28,
+      "signal_candle_close_ms": 1794445200000,
+      "signal_observed_ms": 1794445543196,
+      "signal_type": "momentum_baseline_not_ai",
+      "status": "open"
     }
   ],
   "market": {
-    "closed_candle_at_ms": 1794422700000,
+    "closed_candle_at_ms": 1794445200000,
     "last_96_closes": [
-      [
-        1794337200000,
-        73488.68
-      ],
-      [
-        1794338100000,
-        73361.29
-      ],
-      [
-        1794339000000,
-        73421.07
-      ],
-      [
-        1794339900000,
-        73380.01
-      ],
-      [
-        1794340800000,
-        73473.07
-      ],
-      [
-        1794341700000,
-        73546.0
-      ],
-      [
-        1794342600000,
-        73670.0
-      ],
-      [
-        1794343500000,
-        73684.0
-      ],
-      [
-        1794344400000,
-        73780.0
-      ],
-      [
-        1794345300000,
-        73938.16
-      ],
-      [
-        1794346200000,
-        73974.84
-      ],
-      [
-        1794347100000,
-        73870.0
-      ],
-      [
-        1794348000000,
-        73850.09
-      ],
-      [
-        1794348900000,
-        73927.1
-      ],
-      [
-        1794349800000,
-        73675.67
-      ],
-      [
-        1794350700000,
-        73750.01
-      ],
-      [
-        1794351600000,
-        73692.01
-      ],
-      [
-        1794352500000,
-        73674.01
-      ],
-      [
-        1794353400000,
-        73672.85
-      ],
-      [
-        1794354300000,
-        73831.17
-      ],
-      [
-        1794355200000,
-        73796.06
-      ],
-      [
-        1794356100000,
-        73672.0
-      ],
-      [
-        1794357000000,
-        73662.84
-      ],
-      [
-        1794357900000,
-        73583.36
-      ],
-      [
-        1794358800000,
-        73537.69
-      ],
       [
         1794359700000,
         73393.0
@@ -407,28 +325,132 @@
       [
         1794422700000,
         74544.0
+      ],
+      [
+        1794423600000,
+        74492.85
+      ],
+      [
+        1794424500000,
+        74263.15
+      ],
+      [
+        1794425400000,
+        74424.01
+      ],
+      [
+        1794426300000,
+        74470.39
+      ],
+      [
+        1794427200000,
+        74394.99
+      ],
+      [
+        1794428100000,
+        74567.77
+      ],
+      [
+        1794429000000,
+        74529.98
+      ],
+      [
+        1794429900000,
+        74498.01
+      ],
+      [
+        1794430800000,
+        74678.99
+      ],
+      [
+        1794431700000,
+        74709.84
+      ],
+      [
+        1794432600000,
+        74710.01
+      ],
+      [
+        1794433500000,
+        74478.91
+      ],
+      [
+        1794434400000,
+        74390.01
+      ],
+      [
+        1794435300000,
+        74468.01
+      ],
+      [
+        1794436200000,
+        74304.01
+      ],
+      [
+        1794437100000,
+        74090.74
+      ],
+      [
+        1794438000000,
+        73940.51
+      ],
+      [
+        1794438900000,
+        73509.77
+      ],
+      [
+        1794439800000,
+        73802.01
+      ],
+      [
+        1794440700000,
+        73914.39
+      ],
+      [
+        1794441600000,
+        74015.19
+      ],
+      [
+        1794442500000,
+        73883.65
+      ],
+      [
+        1794443400000,
+        74104.5
+      ],
+      [
+        1794444300000,
+        74118.01
+      ],
+      [
+        1794445200000,
+        74091.28
       ]
     ],
-    "last_candle_close": 74544.0,
-    "last_trade_price_at_observation": 74506.01,
-    "observed_at_ms": 1794422754791,
+    "last_candle_close": 74091.28,
+    "last_trade_price_at_observation": 73822.0,
+    "observed_at_ms": 1794445543196,
     "source": "Binance public 15m klines + BTCUSDT spot ticker (unauthenticated)"
   },
   "metrics": {
     "closed_longs": 0,
-    "decisions": 1,
+    "decisions": 2,
     "illustrative_cost_assumption_per_side": 0.0005,
     "net_log_pnl_proxy": 0,
     "no_trade_decisions": 1
   },
   "notes": "Hypothetical paper observations, not trades or model forecasts.",
-  "open_trade": null,
+  "open_trade": {
+    "entry_observed_ms": 1794445543196,
+    "entry_price": 73822.0,
+    "id": "BTCUSDT-2026-11-12T01:00:00Z"
+  },
   "schema_version": 1,
-  "status": "monitoring_flat",
+  "status": "paper_long_open",
   "strategy": "btc_spot_momentum4_long_flat_baseline_v1",
   "strategy_type": "non_ai_baseline",
   "symbol": "BTCUSDT",
   "transaction_cost_per_side": 0.0005,
-  "updated_at_ms": 1794422754791,
+  "updated_at_ms": 1794445543196,
   "venue": "Binance spot"
 }
