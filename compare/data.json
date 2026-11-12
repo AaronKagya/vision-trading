@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
-  "status": "baseline_only",
-  "generated_utc": "2026-11-12T12:34:05.464060+00:00",
+  "status": "pilot",
+  "generated_utc": "2026-11-12T17:05:51.181325+00:00",
   "study_period": "2024-01-01 through 2024-12-31, UTC",
   "timeframe": "15m",
   "prediction_horizon_candles": 4,
@@ -121,12 +121,188 @@
       }
     },
     "ETHUSDT": {
-      "status": "pending",
-      "note": "Real-data benchmark not completed; no measured performance yet."
+      "status": "measured",
+      "seeds": [
+        0
+      ],
+      "folds": 4,
+      "n_test_per_seed": 17308,
+      "rows": 35136,
+      "data_sha256": "ba3c7234611b91f18a1a7cd30e400249ae08ec572158cdcac4a5bec104c18dd2",
+      "models": {
+        "majority": {
+          "accuracy_mean": 0.5092442801016871,
+          "accuracy_sd": null,
+          "auc_mean": 0.5,
+          "auc_sd": null,
+          "brier_mean": 0.4907557198983129,
+          "brier_sd": null,
+          "sharpe_net_mean": 0.20246250085110526,
+          "sharpe_net_sd": null
+        },
+        "persistence": {
+          "accuracy_mean": 0.47608042523688465,
+          "accuracy_sd": null,
+          "auc_mean": 0.47589913706756204,
+          "auc_sd": null,
+          "brier_mean": 0.5239195747631153,
+          "brier_sd": null,
+          "sharpe_net_mean": -7.42204870683086,
+          "sharpe_net_sd": null
+        },
+        "logreg_lags": {
+          "accuracy_mean": 0.5092442801016871,
+          "accuracy_sd": null,
+          "auc_mean": 0.5057676292436488,
+          "auc_sd": null,
+          "brier_mean": 0.24995149353140858,
+          "brier_sd": null,
+          "sharpe_net_mean": 0.20246250085110526,
+          "sharpe_net_sd": null
+        },
+        "lstm_ohlc": {
+          "accuracy_mean": 0.5327594176103536,
+          "accuracy_sd": null,
+          "auc_mean": 0.5430387292964417,
+          "auc_sd": null,
+          "brier_mean": 0.2486111923291738,
+          "brier_sd": null,
+          "sharpe_net_mean": -5.192861829368205,
+          "sharpe_net_sd": null
+        },
+        "cnn_static": {
+          "accuracy_mean": 0.514328634157615,
+          "accuracy_sd": null,
+          "auc_mean": 0.5189824793368472,
+          "auc_sd": null,
+          "brier_mean": 0.2507411057459761,
+          "brier_sd": null,
+          "sharpe_net_mean": -1.7348648595462586,
+          "sharpe_net_sd": null
+        },
+        "wm_nolatent": {
+          "accuracy_mean": 0.5114397966258377,
+          "accuracy_sd": null,
+          "auc_mean": 0.5198029840361961,
+          "auc_sd": null,
+          "brier_mean": 0.25053676632478405,
+          "brier_sd": null,
+          "sharpe_net_mean": -2.7312310824659507,
+          "sharpe_net_sd": null
+        },
+        "wm": {
+          "accuracy_mean": 0.4968800554656806,
+          "accuracy_sd": null,
+          "auc_mean": 0.5012625872030012,
+          "auc_sd": null,
+          "brier_mean": 0.2501267239807197,
+          "brier_sd": null,
+          "sharpe_net_mean": -3.4718415751688445,
+          "sharpe_net_sd": null
+        },
+        "fusion": {
+          "accuracy_mean": 0.5179685694476542,
+          "accuracy_sd": null,
+          "auc_mean": 0.5258048848159826,
+          "auc_sd": null,
+          "brier_mean": 0.24964223991157575,
+          "brier_sd": null,
+          "sharpe_net_mean": -0.8419816466619301,
+          "sharpe_net_sd": null
+        }
+      }
     },
     "SOLUSDT": {
-      "status": "pending",
-      "note": "Real-data benchmark not completed; no measured performance yet."
+      "status": "measured",
+      "seeds": [
+        0
+      ],
+      "folds": 4,
+      "n_test_per_seed": 17308,
+      "rows": 35136,
+      "data_sha256": "645b60e13c7d17714753a24256def8a3271b0b66e7b41e8b4fd658245f688de1",
+      "models": {
+        "majority": {
+          "accuracy_mean": 0.49324012017564134,
+          "accuracy_sd": null,
+          "auc_mean": 0.49323675633145586,
+          "auc_sd": null,
+          "brier_mean": 0.5067598798243587,
+          "brier_sd": null,
+          "sharpe_net_mean": -1.1232789819999143,
+          "sharpe_net_sd": null
+        },
+        "persistence": {
+          "accuracy_mean": 0.4772937370002311,
+          "accuracy_sd": null,
+          "auc_mean": 0.4770323392991363,
+          "auc_sd": null,
+          "brier_mean": 0.5227062629997689,
+          "brier_sd": null,
+          "sharpe_net_mean": -6.934755076571211,
+          "sharpe_net_sd": null
+        },
+        "logreg_lags": {
+          "accuracy_mean": 0.49537785994915645,
+          "accuracy_sd": null,
+          "auc_mean": 0.4970269309378691,
+          "auc_sd": null,
+          "brier_mean": 0.24999727199776503,
+          "brier_sd": null,
+          "sharpe_net_mean": -1.294413222601375,
+          "sharpe_net_sd": null
+        },
+        "lstm_ohlc": {
+          "accuracy_mean": 0.5229373700023111,
+          "accuracy_sd": null,
+          "auc_mean": 0.5333879606677314,
+          "auc_sd": null,
+          "brier_mean": 0.24918630453387824,
+          "brier_sd": null,
+          "sharpe_net_mean": -1.1710765809387496,
+          "sharpe_net_sd": null
+        },
+        "cnn_static": {
+          "accuracy_mean": 0.5031199445343194,
+          "accuracy_sd": null,
+          "auc_mean": 0.512699302234027,
+          "auc_sd": null,
+          "brier_mean": 0.2521199261323346,
+          "brier_sd": null,
+          "sharpe_net_mean": -2.1687346808420256,
+          "sharpe_net_sd": null
+        },
+        "wm_nolatent": {
+          "accuracy_mean": 0.49982666974809337,
+          "accuracy_sd": null,
+          "auc_mean": 0.5088037698538419,
+          "auc_sd": null,
+          "brier_mean": 0.25152560277946934,
+          "brier_sd": null,
+          "sharpe_net_mean": -1.7545907131382368,
+          "sharpe_net_sd": null
+        },
+        "wm": {
+          "accuracy_mean": 0.5127108851398198,
+          "accuracy_sd": null,
+          "auc_mean": 0.516961232253514,
+          "auc_sd": null,
+          "brier_mean": 0.24981962706718805,
+          "brier_sd": null,
+          "sharpe_net_mean": -0.7310816886915334,
+          "sharpe_net_sd": null
+        },
+        "fusion": {
+          "accuracy_mean": 0.5013288652646175,
+          "accuracy_sd": null,
+          "auc_mean": 0.5153556099731497,
+          "auc_sd": null,
+          "brier_mean": 0.2519392599621691,
+          "brier_sd": null,
+          "sharpe_net_mean": -3.3026482340297245,
+          "sharpe_net_sd": null
+        }
+      }
     },
     "XAUUSD": {
       "status": "planned",
