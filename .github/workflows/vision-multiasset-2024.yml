@@ -1,0 +1,127 @@
+name: Vision Trading multi-instrument 2024 research comparison
+
+on:
+  push:
+    branches: ['feature/vision-trading-multiasset-2024']
+    paths:
+      - '.github/workflows/vision-multiasset-2024.yml'
+      - 'scripts/prepare_multiasset.py'
+      - 'scripts/aggregate_multiasset.py'
+      - 'tests/test_multiasset.py'
+      - 'evidence/btcusdt_2024_seed0_metrics.json'
+      - 'evidence/btcusdt_2024_five_seed_summary.json'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+env:
+  OMP_NUM_THREADS: '2'
+  MKL_NUM_THREADS: '2'
+  OPENBLAS_NUM_THREADS: '2'
+  NUMEXPR_NUM_THREADS: '2'
+  PYTHONUNBUFFERED: '1'
+
+jobs:
+  research:
+    name: ${{ matrix.symbol }} · seed ${{ matrix.seed }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 350
+    strategy:
+      fail-fast: false
+      max-parallel: 3
+      matrix:
+        symbol: [ETHUSDT, SOLUSDT]
+        seed: ${{ fromJSON(github.event_name == 'workflow_dispatch' && '[0,1,2,3,4]' || '[0]') }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: pip
+      - name: Install CPU PyTorch and research requirements
+        run: |
+          python -m pip install --quiet torch --index-url https://download.pytorch.org/whl/cpu
+          python -m pip install --quiet -r requirements.txt
+      - name: Validate full research test suite
+        run: python -m pytest -q tests
+      - name: Strict download and SHA-256 validation of the complete 2024 spot candles
+        run: python -m scripts.prepare_multiasset --symbol ${{ matrix.symbol }} --start 2024-01 --end 2024-12
+      - name: Match original BTC experiment (8 models, 4 folds, 10 max epochs)
+        run: |
+          python -m src.run_experiments \
+            --data data/${{ matrix.symbol }}_15m.csv \
+            --models phase2 --window 32 --img 64 --horizon 4 --K 6 \
+            --folds 4 --epochs 10 --bs 128 --bootstrap 1000 --cost 0.0005 \
+            --seed ${{ matrix.seed }} --out results_${{ matrix.symbol }}_${{ matrix.seed }}
+      - name: Render model comparison and regime diagnostics
+        run: |
+          python -m src.report --results results_${{ matrix.symbol }}_${{ matrix.seed }}
+          python -m src.phase2_eval \
+            --results results_${{ matrix.symbol }}_${{ matrix.seed }} \
+            --data data/${{ matrix.symbol }}_15m.csv --bootstrap 1000
+      - name: Preserve raw per-seed research artifacts even on training failure
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: multiasset-${{ matrix.symbol }}-seed-${{ matrix.seed }}
+          retention-days: 30
+          if-no-files-found: warn
+          path: |
+            data/${{ matrix.symbol }}_15m.manifest.json
+            results_${{ matrix.symbol }}_${{ matrix.seed }}/metrics.json
+            results_${{ matrix.symbol }}_${{ matrix.seed }}/preds.npz
+            results_${{ matrix.symbol }}_${{ matrix.seed }}/phase2_diagnostics.json
+            results_${{ matrix.symbol }}_${{ matrix.seed }}/report.html
+
+  aggregate:
+    name: Verify both markets and assemble comparison data
+    needs: research
+    if: always()
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Retrieve original per-seed artifacts
+        uses: actions/download-artifact@v4
+        with:
+          pattern: multiasset-*
+          path: collected_multiasset
+          merge-multiple: false
+      - name: Reject incomplete or non-comparable benchmarks
+        run: |
+          if [ "${{ github.event_name }}" = 'workflow_dispatch' ]; then
+            python -m scripts.aggregate_multiasset --root collected_multiasset --seeds 0 1 2 3 4 --out public_comparison/data.json
+          else
+            python -m scripts.aggregate_multiasset --root collected_multiasset --seeds 0 --out public_comparison/data.json
+          fi
+      - name: Save validated comparison report
+        uses: actions/upload-artifact@v4
+        with:
+          name: multiasset-research-comparison
+          path: public_comparison/data.json
+          if-no-files-found: error
+          retention-days: 90
+      - name: Checkout published Pages branch
+        uses: actions/checkout@v4
+        with:
+          ref: gh-pages
+          path: published
+          persist-credentials: true
+      - name: Publish only the comparison evidence, never live orders
+        run: |
+          mkdir -p published/compare
+          cp public_comparison/data.json published/compare/data.json
+          git -C published config user.name 'github-actions[bot]'
+          git -C published config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git -C published add compare/data.json
+          if git -C published diff --cached --quiet; then
+            echo 'No new evidence to publish.'
+          else
+            git -C published commit -m 'research: publish verified cross-market benchmark evidence'
+            git -C published pull --rebase origin gh-pages
+            git -C published push origin HEAD:gh-pages
+          fi
