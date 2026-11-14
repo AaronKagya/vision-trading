@@ -1,0 +1,42 @@
+{
+  "activated_at_ms": 1794640556393,
+  "forecasts": [],
+  "last_forecast_close_ms": null,
+  "market": {
+    "closed_at_ms": 1794640500000,
+    "last_closed_price": 67411.0,
+    "observed_at_ms": 1794640556393,
+    "source": "Binance public BTCUSDT spot completed 15m klines"
+  },
+  "metrics": {
+    "accuracy": null,
+    "brier_score": null,
+    "forecasts": 0,
+    "missing_outcomes": 0,
+    "momentum_baseline_accuracy": null,
+    "pending": 0,
+    "settled": 0
+  },
+  "model": {
+    "ensemble_policy": "unweighted mean of all five fixed seeds",
+    "forecast_horizon_candles": 4,
+    "forecast_timeframe": "15m",
+    "model_id": "frozen_2024_lstm_five_seed_equal_mean_v1",
+    "training_data_sha256": "2cc72f14a30e03baa1aeff87d4d6c63b4359361146fa51b633b96a21e106de67",
+    "training_period": "2024 UTC; fit before 2024-10-01; validation through 2024-12-31",
+    "validation_selected_max_epochs": 20,
+    "weights_sha256_by_seed": {
+      "0": "c871cf56c4b9b94e9e514f55c9c42ec65f821850a96de24d13dc38f885534e07",
+      "1": "8f2c6e1d9bfa49f18cf410ff5a0cf0c53f765016ee6c5f74aba7e04e97b86cc1",
+      "2": "cd35f3ed675d8d4d2ab6c688a464b9da4acbea208626fbfdf36d26f360a70a48",
+      "3": "93064b08ce847bbaf232bfa1489e17dd68c4503368b30842eeaba5a08a118540",
+      "4": "6205629302e60ba9c38047dad4afff183b4769d9691e280ad56c6167b4f7ca6f"
+    }
+  },
+  "research_disclaimer": "Frozen 2024 LSTM ensemble; forward recorded forecasts only. No calibration guarantee, trading orders, or profitability claim.",
+  "schema_version": 1,
+  "status": "armed_no_prior_predictions",
+  "strategy_type": "ai_forecast_shadow_no_orders",
+  "symbol": "BTCUSDT",
+  "updated_at_ms": 1794640556393
+}
