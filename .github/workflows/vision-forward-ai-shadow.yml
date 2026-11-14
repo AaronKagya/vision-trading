@@ -1,0 +1,82 @@
+name: Vision Trading frozen 2024 LSTM prospective shadow audit
+
+on:
+  push:
+    branches: ['feature/vision-trading-ai-shadow-v06']
+    paths:
+      - '.github/workflows/vision-forward-ai-shadow.yml'
+      - 'src/forward_ai.py'
+      - 'scripts/run_shadow_ai.py'
+      - 'tests/test_forward_ai.py'
+      - 'models/frozen_2024_lstm_ensemble.zip'
+  workflow_dispatch:
+  # GitHub runs scheduled workflows only from the repository default branch.
+  # This cron activates ONLY if the workflow is subsequently merged to main.
+  schedule:
+    - cron: '6,21,36,51 * * * *'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: vision-trading-shadow-ai-state
+  cancel-in-progress: false
+
+jobs:
+  observe:
+    name: Verify frozen LSTM ensemble and record new observations only
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout research implementation
+        uses: actions/checkout@v4
+        with:
+          path: research
+          persist-credentials: false
+      - name: Checkout public observation ledger
+        uses: actions/checkout@v4
+        with:
+          ref: gh-pages
+          path: published
+          persist-credentials: true
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: pip
+          cache-dependency-path: research/requirements.txt
+      - name: Install CPU PyTorch and research dependencies
+        run: |
+          python -m pip install --quiet torch --index-url https://download.pytorch.org/whl/cpu
+          python -m pip install --quiet -r research/requirements.txt
+      - name: Restore archived 2024 model weights
+        run: |
+          mkdir -p research/models/phase4_2024
+          unzip -oq research/models/frozen_2024_lstm_ensemble.zip -d research/models/phase4_2024
+      - name: Run no-lookahead and frozen checkpoint tests
+        run: |
+          cd research
+          OMP_NUM_THREADS=2 MKL_NUM_THREADS=2 python -m pytest -q tests/test_forward_ai.py
+      - name: Observe market once and update ledger (NO broker actions)
+        run: |
+          cd research
+          OMP_NUM_THREADS=2 MKL_NUM_THREADS=2 python -m scripts.run_shadow_ai --state ../published/ai/state.json
+      - name: Upload evidence even before public publishing
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: frozen-ai-shadow-observation-${{ github.run_id }}
+          path: published/ai/state.json
+          if-no-files-found: error
+          retention-days: 30
+      - name: Publish observed data only, without modifying the site or the existing baseline
+        run: |
+          git -C published config user.name 'github-actions[bot]'
+          git -C published config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git -C published add ai/state.json
+          if git -C published diff --cached --quiet; then
+            echo 'No new observation to record.'
+          else
+            git -C published commit -m 'research: append prospective, model-versioned LSTM shadow observations'
+            git -C published pull --rebase origin gh-pages
+            git -C published push origin HEAD:gh-pages
+          fi
