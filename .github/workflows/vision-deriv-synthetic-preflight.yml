@@ -1,0 +1,65 @@
+name: Vision Trading Deriv synthetic research preflight (public data only)
+
+on:
+  push:
+    branches: ['feature/vision-trading-deriv-synthetics-v08']
+    paths:
+      - '.github/workflows/vision-deriv-synthetic-preflight.yml'
+      - 'src/deriv_synthetics.py'
+      - 'src/trade_risk.py'
+      - 'src/advisor_signals.py'
+      - 'scripts/prepare_deriv_synthetics.py'
+      - 'tests/test_deriv_synthetics.py'
+      - 'tests/test_trade_risk.py'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.11', cache: pip}
+      - name: Install research and public-WebSocket dependencies
+        run: python -m pip install -r requirements.txt -r requirements-deriv.txt
+      - name: Run all available research regression tests
+        run: python -m pytest -q tests
+
+  public-market-data:
+    needs: tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    strategy:
+      fail-fast: false
+      max-parallel: 3
+      matrix:
+        instrument:
+          - 'Volatility 75 Index'
+          - 'Volatility 10 Index'
+          - 'Volatility 25 Index'
+          - 'Jump 50 Index'
+          - 'Jump 75 Index'
+          - 'Jump 100 Index'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.11', cache: pip}
+      - name: Install Python public-data client
+        run: python -m pip install -r requirements.txt -r requirements-deriv.txt
+      - name: Discover exact broker code and validate recent historical candles
+        run: |
+          python -m scripts.prepare_deriv_synthetics --symbol '${{ matrix.instrument }}' --pages 2 --out-dir data/deriv
+      - name: Upload real market-data manifest (no model accuracy claims)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: deriv-data-${{ strategy.job-index }}
+          retention-days: 14
+          if-no-files-found: warn
+          path: |
+            data/deriv/*.manifest.json
+            data/deriv/*.csv

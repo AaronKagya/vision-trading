@@ -1,0 +1,2 @@
+# Public WebSocket market-data transport; installs alongside requirements.txt.
+websockets>=14,<17
