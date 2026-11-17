@@ -1,0 +1,85 @@
+name: Vision Trading Phase 8 visual world model freeze (2024 only)
+
+on:
+  push:
+    branches: ['feature/vision-trading-visual-shadow-v07']
+    paths:
+      - '.github/workflows/vision-visual-shadow-training.yml'
+      - 'scripts/train_2024_visual_shadow.py'
+      - 'scripts/freeze_visual_ensemble.py'
+      - 'tests/test_visual_shadow.py'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  OMP_NUM_THREADS: '2'
+  MKL_NUM_THREADS: '2'
+  OPENBLAS_NUM_THREADS: '2'
+  NUMEXPR_NUM_THREADS: '2'
+  PYTHONUNBUFFERED: '1'
+
+jobs:
+  train-visual:
+    name: 2024 visual world model · seed ${{ matrix.seed }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 320
+    strategy:
+      fail-fast: false
+      max-parallel: 5
+      matrix:
+        seed: [0,1,2,3,4]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: pip
+      - name: Install CPU PyTorch
+        run: python -m pip install torch --index-url https://download.pytorch.org/whl/cpu
+      - name: Install research requirements
+        run: python -m pip install -r requirements.txt
+      - name: Verify visual training split and provenance tests
+        run: python -m pytest -q tests/test_visual_shadow.py
+      - name: Download and verify exact 2024 BTCUSDT market data
+        run: python -m scripts.prepare_btcusdt --start 2024-01 --end 2024-12
+      - name: Train 2024-only visual world model and freeze validation-best weights
+        run: python -m scripts.train_2024_visual_shadow --seed ${{ matrix.seed }} --out visual_seed_${{ matrix.seed }}
+      - name: Upload auditable checkpoints and validation metrics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: visual-seed-${{ matrix.seed }}
+          retention-days: 45
+          if-no-files-found: warn
+          path: visual_seed_${{ matrix.seed }}/
+
+  archive:
+    name: Validate all five visual models and freeze the ensemble
+    needs: train-visual
+    if: always()
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install archival requirements
+        run: |
+          python -m pip install numpy pandas
+          python -m pip install torch --index-url https://download.pytorch.org/whl/cpu
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: visual-seed-*
+          path: collected_visual
+          merge-multiple: false
+      - name: Verify every seed and freeze archive (fail if incomplete)
+        run: python -m scripts.freeze_visual_ensemble --root collected_visual --out frozen_visual_ensemble
+      - uses: actions/upload-artifact@v4
+        with:
+          name: frozen-2024-visual-world-model-five-seed-ensemble
+          retention-days: 90
+          if-no-files-found: error
+          path: frozen_visual_ensemble/
