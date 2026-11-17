@@ -26,8 +26,12 @@ jobs:
         with: {python-version: '3.11', cache: pip}
       - name: Install research and public-WebSocket dependencies
         run: python -m pip install -r requirements.txt -r requirements-deriv.txt
+      - name: Restore frozen research checkpoints needed by legacy tests
+        run: |
+          mkdir -p models/phase4_2024
+          unzip -oq models/frozen_2024_lstm_ensemble.zip -d models/phase4_2024
       - name: Run all available research regression tests
-        run: python -m pytest -q tests
+        run: OMP_NUM_THREADS=2 MKL_NUM_THREADS=2 python -m pytest -q tests
 
   public-market-data:
     needs: tests
